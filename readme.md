@@ -31,7 +31,7 @@ This method gets two parameters.
 First is "table name", second is our data in array.
 @param Array Data
 
-    $db->insert("users", 
+    $db->insert("students", 
     array("user_name" => "John Doe",
           "user_email" => "john@google.com")
           );
@@ -48,7 +48,7 @@ First is "table name", second is our data in array and third is "where situation
 
 ###Delete
 
-    $db->delete("users",1);
+    $db->delete("students",1);
     
 Important : If you dont set second param, this method deletes all contents in file!
 
