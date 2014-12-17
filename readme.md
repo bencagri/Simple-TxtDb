@@ -58,8 +58,8 @@ This method returns array object.
 
      $students =  $db->select('students');
      
-     foreach($users as $user){
-        echo $user->user_name;
+     foreach($students as $student){
+        echo $student->name;
      }
      
     
@@ -68,7 +68,7 @@ This method list one row by your query.
 
     $user = $db->select('students',1);
     
-    echo $user->user_name;
+    echo $user->name;
     //output
     John Doe
 
