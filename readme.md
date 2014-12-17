@@ -41,7 +41,7 @@ First is "table name", second is our data in array.
 This method gets three parameters.
 First is "table name", second is our data in array and third is "where situation"
 
-    $db->update("users", 
+    $db->update("students", 
     array("user_name" => "Jen Doe",
           "user_email" => "jen@google.com),1);
     
