@@ -11,8 +11,6 @@ File contents  = Table Rows
 #Usage
 ===============
 
-I have written this class for simple usage for txt files as database.
-
     require("txtdb.class.php");
 
     $db = new TxtDb();
@@ -25,15 +23,15 @@ thats it. Or;
       'encrypt'   => FALSE);
       
 
+Encryption is used to encrypt file names.
 
 ###Inserting Data
 This method gets two parameters. 
 First is "table name", second is our data in array.
-@param Array Data
 
-    $db->insert("students", 
-    array("user_name" => "John Doe",
-          "user_email" => "john@google.com")
+    $db->insert("teachers", 
+    array("name" => "John Doe",
+          "email" => "john@google.com")
           );
     
 
@@ -41,9 +39,9 @@ First is "table name", second is our data in array.
 This method gets three parameters.
 First is "table name", second is our data in array and third is "where situation"
 
-    $db->update("students", 
-    array("user_name" => "Jen Doe",
-          "user_email" => "jen@google.com),1);
+    $db->update("teachers", 
+    array("name" => "Jen Doe",
+          "email" => "jen@google.com),1);
     
 
 ###Delete
@@ -64,7 +62,7 @@ This method returns array object.
      
     
 ###Select One Row
-This method list one row by your query.
+This method list one row by second param
 
     $user = $db->select('students',1);
     
