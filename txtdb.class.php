@@ -6,7 +6,7 @@
  * 
  * @author Cagri S. Kirbiyik
  * @since 17.11.2014
- * @version 1.6
+ * @version 1.7
  * @license BSD http://www.opensource.org/licenses/bsd-license.php
  */
 

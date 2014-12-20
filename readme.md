@@ -7,6 +7,9 @@ Your directory = Your Database,
 Your files     = Your Tables,
 File contents  = Table Rows
 
+#Update
+===============
+v1.7 - You can use select method with 'where' situation. Check examples.
 
 #Usage
 ===============
