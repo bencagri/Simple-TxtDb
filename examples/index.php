@@ -33,6 +33,16 @@ $teacher = $db->select('teachers',1);
 	echo 'Email : '.$teacher->Email.'<br>';
 
 
+//Select with where situation
+$teachers =$db->select('teachers',array('name' =>'Test-1'));
+foreach ($teachers as $teacher) {
+	echo 'Name : '.$teacher->Name.'<br>';
+	echo 'Surname : '.$teacher->Surname.'<br>';
+	echo 'Age : '.$teacher->Age.'<br>';
+	echo 'Email : '.$teacher->Email.'<br>';
+}
+
+
 //Delete All
 $db->delete('teachers');
 

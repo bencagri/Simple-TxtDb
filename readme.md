@@ -62,13 +62,25 @@ This method returns array object.
      
     
 ###Select One Row
-This method list one row by second param
+This method lists one row by id
 
     $user = $db->select('students',1);
     
     echo $user->name;
     //output
     John Doe
+
+
+###Select with where situation
+With this method you can select data with where situation, second param should be array
+
+    $teachers =$db->select('teachers',array('name' =>'Test-1'));
+    foreach ($teachers as $teacher) {
+      echo 'Name : '.$teacher->Name.'<br>';
+      echo 'Surname : '.$teacher->Surname.'<br>';
+      echo 'Age : '.$teacher->Age.'<br>';
+      echo 'Email : '.$teacher->Email.'<br>';
+    }
 
 
 Easy? huh.

@@ -106,8 +106,25 @@ class TxtDb {
     if (!$id) {
       return $dataArray;
     }else{
-      if (!isset($dataArray->$id)) return null; 
-      return $dataArray->$id;
+      //where situation
+      if(is_array($id)){
+        $where = array();
+        foreach ($id as $key => $value) {
+          $where['0'] = $key;
+          $where['1'] = $value;
+        }
+        $output = $this->search($dataArray,$where['0'],$where['1']);
+        if (count($output) > 0) {
+          return json_decode(json_encode($output));
+        }else{
+          echo("Error: select() - No Result Found.");
+        }    
+
+      }elseif(is_int($id)){
+        //if (!isset($dataArray->$id)) return null; 
+        return $dataArray->$id;
+      }
+     
     }
   }
 
@@ -303,5 +320,24 @@ class TxtDb {
     return $this->_extension;
   }
 
+
+  private function search($array, $key, $value){
+    $array = json_decode(json_encode($array),TRUE);
+
+    $results = array();
+
+    if (is_array($array)) {
+        if (isset($array[$key]) && $array[$key] == $value) {
+            $results[] = $array;
+        }
+
+        foreach ($array as $subarray) {
+            $results = array_merge($results, $this->search($subarray, $key, $value));
+        }
+    }
+
+    return $results;
+
+  }
 
 }
