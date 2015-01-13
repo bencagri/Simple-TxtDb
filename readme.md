@@ -20,10 +20,10 @@ v1.7 - You can use select method with 'where' situation. Check examples.
     
 thats it. Or;
 
-    $db = new TxtDb('name' => 'TABLE-NAME',
+    $db = new TxtDb(array('name' => 'TABLE-NAME',
       'path'      => 'db/',
       'extension' => '.txtdb',
-      'encrypt'   => FALSE);
+      'encrypt'   => FALSE));
       
 
 Encryption is used to encrypt file names.
