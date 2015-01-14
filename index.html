@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>Simple-txtdb by bencagri</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Simple-txtdb</h1>
+          <h2>Php Class to build database with txt files.</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/bencagri/Simple-TxtDb/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/bencagri/Simple-TxtDb/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/bencagri/Simple-TxtDb" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <h1>
+<a id="php-txtdb-class" class="anchor" href="#php-txtdb-class" aria-hidden="true"><span class="octicon octicon-link"></span></a>Php TxtDb Class</h1>
+
+<p>I have written this class for simple usage for txt files as database. This is a simple way to store datas in txt files. If you dont want to use Mysql, Mssql, SQLite etc. use this class.</p>
+
+<p>Logic is simple;
+Your directory = Your Database,
+Your files     = Your Tables,
+File contents  = Table Rows</p>
+
+<h1>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h1>
+
+<h1></h1>
+
+<pre><code>require("txtdb.class.php");
+
+$db = new TxtDb();
+</code></pre>
+
+<p>thats it. Or;</p>
+
+<pre><code>$db = new TxtDb('name' =&gt; 'TABLE-NAME',
+  'path'      =&gt; 'db/',
+  'extension' =&gt; '.txtdb',
+  'encrypt'   =&gt; FALSE);
+</code></pre>
+
+<p>Encryption is used to encrypt file names.</p>
+
+<h3>
+<a id="inserting-data" class="anchor" href="#inserting-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Inserting Data</h3>
+
+<p>This method gets two parameters. 
+First is "table name", second is our data in array.</p>
+
+<pre><code>$db-&gt;insert("teachers", 
+array("name" =&gt; "John Doe",
+      "email" =&gt; "john@google.com")
+      );
+</code></pre>
+
+<h3>
+<a id="update" class="anchor" href="#update" aria-hidden="true"><span class="octicon octicon-link"></span></a>Update</h3>
+
+<p>This method gets three parameters.
+First is "table name", second is our data in array and third is "where situation"</p>
+
+<pre><code>$db-&gt;update("teachers", 
+array("name" =&gt; "Jen Doe",
+      "email" =&gt; "jen@google.com),1);
+</code></pre>
+
+<h3>
+<a id="delete" class="anchor" href="#delete" aria-hidden="true"><span class="octicon octicon-link"></span></a>Delete</h3>
+
+<pre><code>$db-&gt;delete("students",1);
+</code></pre>
+
+<p>Important : If you dont set second param, this method deletes all contents in file!</p>
+
+<h3>
+<a id="select" class="anchor" href="#select" aria-hidden="true"><span class="octicon octicon-link"></span></a>Select</h3>
+
+<p>This method returns array object.</p>
+
+<pre><code> $students =  $db-&gt;select('students');
+
+ foreach($students as $student){
+    echo $student-&gt;name;
+ }
+</code></pre>
+
+<h3>
+<a id="select-one-row" class="anchor" href="#select-one-row" aria-hidden="true"><span class="octicon octicon-link"></span></a>Select One Row</h3>
+
+<p>This method list one row by second param</p>
+
+<pre><code>$user = $db-&gt;select('students',1);
+
+echo $user-&gt;name;
+//output
+John Doe
+</code></pre>
+
+
+<h3>
+<a id="select-one-row" class="anchor" href="#select-one-row" aria-hidden="true"><span class="octicon octicon-link"></span></a>Select with where situation</h3>
+
+<p>With this method you can select data with where situation, second param should be array</p>
+
+<pre><code>
+$teachers =$db->select('teachers',array('name' =>'Test-1'));
+foreach ($teachers as $teacher) {
+  echo 'Name : '.$teacher->Name.'<br>';
+  echo 'Surname : '.$teacher->Surname.'<br>';
+  echo 'Email : '.$teacher->Email.'<br>';
+}
+</code></pre>
+
+<p>Easy? huh.</p>
+
+Türkçe Sayfa için tıklayın : <a href="http://bencagri.com/blog/php-ile-txt-dosyalarini-database-olarak-kullanmak.html" title="Php ile TXT veritabanı kullanımı">http://bencagri.com/blog/php-ile-txt-dosyalarini-database-olarak-kullanmak.html</a> 
+        </section>
+
+        <footer>
+          Simple-txtdb is maintained by <a href="https://github.com/bencagri">bencagri</a> - 
+          Follow me on twitter <a href="https://twitter.com/bencagri">bencagri</a>
+          <br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
+  </body>
+</html>
