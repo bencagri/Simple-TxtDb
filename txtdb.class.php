@@ -88,7 +88,8 @@ class TxtDb {
 
     $saveData = json_encode($dataArray);
     $save = file_put_contents($this->getTableDir(), $saveData);
-    return $save ? true : false ;
+	/** return object of saved data if saved */
+    return $save ? json_decode($saveData) : false ;
 
   }
 
@@ -117,7 +118,7 @@ class TxtDb {
         if (count($output) > 0) {
           return json_decode(json_encode($output));
         }else{
-          echo("Error: select() - No Result Found.");
+          return false;
         }    
 
       }elseif(is_int($id)){
@@ -150,9 +151,9 @@ class TxtDb {
         unset($dataArray[$id]);
         $dataArray = json_encode($dataArray);
         file_put_contents($this->getTableDir(), $dataArray);
-        return true;
+        return json_decode($dataArray);
       } else {
-        echo("Error: delete() - Key '{$id}' not found.");
+        return false;
       }
     }
   }
@@ -185,8 +186,9 @@ class TxtDb {
       $dataArray[$id] = $data;
       $dataArray = json_encode($dataArray);
       file_put_contents($this->getTableDir(), $dataArray);
+	  return json_decode($dataArray);
     }else{
-      echo("Error: update() - Key '{$id}' not found.");
+      return false;
     }
 
   }
