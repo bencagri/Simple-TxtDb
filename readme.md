@@ -20,10 +20,10 @@ v1.7 - You can use select method with 'where' situation. Check examples.
     
 thats it. Or;
 
-    $db = new TxtDb('name' => 'TABLE-NAME',
+    $db = new TxtDb(array('name' => 'TABLE-NAME',
       'path'      => 'db/',
       'extension' => '.txtdb',
-      'encrypt'   => FALSE);
+      'encrypt'   => FALSE));
       
 
 Encryption is used to encrypt file names.
@@ -85,5 +85,21 @@ With this method you can select data with where situation, second param should b
       echo 'Email : '.$teacher->Email.'<br>';
     }
 
-
 Easy? huh.
+
+## Contributing
+
+1. Fork it!
+2. Create your feature branch: `git checkout -b my-new-feature`
+3. Commit your changes: `git commit -m 'Add some feature'`
+4. Push to the branch: `git push origin my-new-feature`
+5. Submit a pull request :D
+
+
+## TODOS
+
+ - Where situation on update method
+ - Where situation on delete method
+
+
+
