@@ -53,10 +53,10 @@ $db = new TxtDb();
 
 <p>thats it. Or;</p>
 
-<pre><code>$db = new TxtDb('name' =&gt; 'TABLE-NAME',
-  'path'      =&gt; 'db/',
-  'extension' =&gt; '.txtdb',
-  'encrypt'   =&gt; FALSE);
+<pre><code>$db = new txtdb('name' =&gt; 'TABLE-NAME',
+  'dir'      =&gt; 'db/',
+  'extension' =&gt; 'txtdb',
+  'encrypt'   =&gt; false);
 </code></pre>
 
 <p>Encryption is used to encrypt file names.</p>
@@ -123,7 +123,7 @@ John Doe
 <p>With this method you can select data with where situation, second param should be array</p>
 
 <pre><code>
-$teachers =$db->select('teachers',array('name' =>'Test-1'));
+$teachers =$db->select('teachers',['name' =>'John-1']);
 foreach ($teachers as $teacher) {
   echo 'Name : '.$teacher->Name.'<br>';
   echo 'Surname : '.$teacher->Surname.'<br>';

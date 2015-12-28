@@ -1,15 +1,16 @@
-Php TxtDb Class
+PHP TxtDb Class
 ================
 I have written this class for simple usage for txt files as database. This is a simple way to store datas in txt files. If you dont want to use Mysql, Mssql, SQLite etc. use this class.
 
 Logic is simple;
-Your directory = Your Database,
-Your files     = Your Tables,
-File contents  = Table Rows
+Your directory = Your database directory,
+Your files     = Your tables,
+File contents  = Table rows
 
 #Update
 ===============
-v1.7 - You can use select method with 'where' situation. Check examples.
+* v2.0 - Km.Van rewrite all codes and optimize the IO operation. And uses more stringent API.
+* v1.7 - You can use select method with 'where' situation. Check examples.
 
 #Usage
 ===============
@@ -20,11 +21,12 @@ v1.7 - You can use select method with 'where' situation. Check examples.
     
 thats it. Or;
 
-    $db = new TxtDb(array('name' => 'TABLE-NAME',
-      'path'      => 'db/',
-      'extension' => '.txtdb',
-      'encrypt'   => FALSE));
-      
+	$db = new TxtDb([
+		'dir'      => 'db/',
+		'extension' => 'txtdb',
+		'encrypt'   => false,
+	]);
+
 
 Encryption is used to encrypt file names.
 
@@ -32,20 +34,20 @@ Encryption is used to encrypt file names.
 This method gets two parameters. 
 First is "table name", second is our data in array.
 
-    $db->insert("teachers", 
-    array("name" => "John Doe",
-          "email" => "john@google.com")
-          );
-    
+	$db->insert("teachers", [
+		"name" => "John Doe",
+		"email" => "john@google.com"
+	]);
+
 
 ###Update
 This method gets three parameters.
 First is "table name", second is our data in array and third is "where situation"
 
-    $db->update("teachers", 
-    array("name" => "Jen Doe",
-          "email" => "jen@google.com),1);
-    
+    $db->update("teachers", [
+		"name" => "John Doe",
+		"email" => "john@google.com"
+	],1);
 
 ###Delete
 
