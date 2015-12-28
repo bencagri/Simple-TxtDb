@@ -6,7 +6,7 @@
  * 
  * @author Cagri S. Kirbiyik, Km.Van
  * @since 28.12.2015
- * @version 2.0
+ * @version 2.0.1
  * @license BSD http://www.opensource.org/licenses/bsd-license.php
  */
 
@@ -181,7 +181,10 @@ class txtdb {
 		$this->_load_table($table);
 
 		if(isset($this->db_cache[$table][$id])){
-			$this->db_cache[$table][$id] = $data;
+			$this->db_cache[$table][$id] = array_merge(
+				$this->db_cache[$table][$id],
+				$data
+			);
 			if($this->write_to_disk($table)){
 				return $this->db_cache[$table];
 			}else{
