@@ -269,7 +269,11 @@ class txtdb {
 	 */
 	private function _load_table($table) {
 		if(!isset($this->db_cache[$table])){
-			$this->db_cache[$table] = json_decode(file_get_contents($this->get_table_path($table)),true);
+			if(!is_file($this->get_table_path($table))){
+				$this->db_cache[$table] = [];
+			}else{
+				$this->db_cache[$table] = json_decode(file_get_contents($this->get_table_path($table)),true);
+			}
 		}
 		$this->current_tablename = $table;
 		return $this->db_cache[$table];
