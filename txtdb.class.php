@@ -5,8 +5,8 @@
  * Required: PHP5.5+
  * 
  * @author Cagri S. Kirbiyik, Km.Van
- * @since 28.12.2015
- * @version 2.0.1
+ * @since 31.12.2015
+ * @version 2.0.2
  * @license BSD http://www.opensource.org/licenses/bsd-license.php
  */
 
@@ -74,16 +74,17 @@ class txtdb {
 	 * @param string $key
 	 * @param mixed $data
 	 * @param integer [optional] $expiration
-	 * @return boolean
+	 * @return mixed ID success or false
 	 */
 
 	public function insert($table, $new_data){
 		$this->_load_table($table);
 
 		if(!empty($new_data)){
-			$this->db_cache[$table][$this->get_unique_id()] = $new_data;
+			$id = $this->get_unique_id();
+			$this->db_cache[$table][$id] = $new_data;
 			if($this->write_to_disk($table)){
-				return $this->db_cache[$table];
+				return $id;
 			}
 			return false;
 		}
@@ -95,36 +96,35 @@ class txtdb {
 	/**
 	 * Retrieve data by its key
 	 * 
-	 * @param string $key
-	 * @param mixed $id Key name
-	 * @return string
+	 * @param string $table name
+	 * @param mixed $condition Key name or array
+	 * @return mixed
 	 */
-
-	public function select($table, $id = null){
+	public function select($table, $condition = null){
 		$this->_load_table($table);
-		if (!$id) {
+		
+		if(empty($this->db_cache[$table]))
+			return $this->select_all($table);
+			
+		/** no condition */
+		if (!$condition) {
 			return $this->db_cache[$table];
-		}else{
-			//where situation
-			if(is_array($id)){
-				$where = [];
-				foreach ($id as $key => $value) {
-					$where[0] = $key;
-					$where[1] = $value;
+		}
+		/** array condition */
+		if(is_array($condition)){
+			$data = [];
+			foreach($this->db_cache[$table] as $k => $v){
+				foreach($condition as $condition_key => $condition_value){
+					if(!isset($v[$condition_key]) || $v[$condition_key] != $condition_value){
+						continue 2;
+					}
 				}
-				$output = $this->search(
-					$this->db_cache[$table],
-					$where[0],
-					$where[1]
-				);
-				if (count($output) > 0) {
-					return $output;
-				}else{
-					return false;
-				}
-			}else{
-				return isset($this->db_cache[$table][$id]) ? $this->db_cache[$table][$id] : false;
+				$data[$k] = $v;
 			}
+			return $data;
+		/** id condition */
+		}else{
+			return isset($this->db_cache[$table][$condition]) ? [$condition => $this->db_cache[$table][$condition]] : false;
 		}
 	}
 
@@ -309,16 +309,5 @@ class txtdb {
 	 */
 	private function getExtension() {
 		return $this->_extension;
-	}
-
-
-	private function search($data, $key, $value){
-		$results = [];
-		foreach($data as $v){
-			if (isset($v[$key]) && $v[$key] == $value) {
-				$results[] = $v;
-			}
-		}
-		return $results;
 	}
 }
