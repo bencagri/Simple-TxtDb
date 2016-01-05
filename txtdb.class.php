@@ -1,343 +1,313 @@
 <?php
-
 /**
- * Simple TxtDb Class
+ * Simple txtdb Class
  * API Documentation: https://github.com/bencagri/Simple-TxtDb
+ * Required: PHP5.5+
  * 
- * @author Cagri S. Kirbiyik
- * @since 17.11.2014
- * @version 1.7
+ * @author Cagri S. Kirbiyik, Km.Van
+ * @since 31.12.2015
+ * @version 2.0.2
  * @license BSD http://www.opensource.org/licenses/bsd-license.php
  */
 
-class TxtDb {
+class txtdb {
 
-  /**
-   * The path to the cache file folder
-   *
-   * @var string
-   */
-  private $_dbpath = 'db/';
+	/**
+	 * The path to the cache file folder
+	 *
+	 * @var string
+	 */
+	private $_db_dir = __DIR__ . '/db/';
 
-  /**
-   * The name of the default cache file
-   *
-   * @var string
-   */
-  private $_tablename = 'default';
+	/**
+	 * The name of the default db file
+	 *
+	 * @var string
+	 */
+	private $_tablename = 'default';
 
-  /**
-   * The cache file extension
-   *
-   * @var string
-   */
-  private $_extension = '.txtdb';
+	/**
+	 * The db file extension
+	 *
+	 * @var string
+	 */
+	private $_extension = 'txtdb';
 
-  /**
-   * Ffile encryption
-   *
-   * @var string
-   */
-  private $_encrypt = FALSE;
+	/**
+	 * File encryption
+	 *
+	 * @var string
+	 */
+	private $_encrypt = false;
+	
+	/**
+	 * The db cache array
+	 */
+	private $db_cache = [];
+	
+	/**
+	 * Default constructor
+	 *
+	 * @param array $config
+	 *  @type string $dir
+	 *  @type string $extension
+	 *  @type string $encrypt
+	 * @return void
+	 */
+	public function __construct(array $config = []) {
+		$config = array_merge([
+			'extension' => $this->_extension,
+			'encrypt' => $this->_encrypt,
+			'dir' => $this->_db_dir,
+		],$config);
+		
+		$this->set_db_dir($config['dir']);
+		$this->set_extension($config['extension']);
+		$this->set_encryption($config['encrypt']);
+	}
+	private function set_db_dir($dir){
+		$this->_db_dir = $dir;
+	}
+	/**
+	 * Store data in the table file
+	 *
+	 * @param string $key
+	 * @param mixed $data
+	 * @param integer [optional] $expiration
+	 * @return mixed ID success or false
+	 */
 
-  /**
-   * Default constructor
-   *
-   * @param string|array [optional] $config
-   * @return void
-   */
-  public function __construct($config = null) {
-    if (true === isset($config)) {
-      if (is_string($config)) {
-        $this->setCache($config);
-      } else if (is_array($config)) {
-        $this->setTable($config['name']);
-        $this->getTablePath($config['path']);
-        $this->setExtension($config['extension']);
-        $this->setEncryption($config['encrypt']);
-      }
-    }
-  }
+	public function insert($table, $new_data){
+		$this->_load_table($table);
 
-  /**
-  * Store data in the table file
-  *
-  * @param string $key
-  * @param mixed $data
-  * @param integer [optional] $expiration
-  * @return boolean
-  */
+		if(!empty($new_data)){
+			$id = $this->get_unique_id();
+			$this->db_cache[$table][$id] = $new_data;
+			if($this->write_to_disk($table)){
+				return $id;
+			}
+			return false;
+		}
+		return false;
+	}
+	private function get_unique_id(){
+		return md5($_SERVER['REQUEST_TIME'] + mt_rand(1000,9999));
+	}
+	/**
+	 * Retrieve data by its key
+	 * 
+	 * @param string $table name
+	 * @param mixed $condition Key name or array
+	 * @return mixed
+	 */
+	public function select($table, $condition = null){
+		$this->_load_table($table);
+		
+		if(empty($this->db_cache[$table]))
+			return $this->select_all($table);
+			
+		/** no condition */
+		if (!$condition) {
+			return $this->db_cache[$table];
+		}
+		/** array condition */
+		if(is_array($condition)){
+			$data = [];
+			foreach($this->db_cache[$table] as $k => $v){
+				foreach($condition as $condition_key => $condition_value){
+					if(!isset($v[$condition_key]) || $v[$condition_key] != $condition_value){
+						continue 2;
+					}
+				}
+				$data[$k] = $v;
+			}
+			return $data;
+		/** id condition */
+		}else{
+			return isset($this->db_cache[$table][$condition]) ? [$condition => $this->db_cache[$table][$condition]] : false;
+		}
+	}
 
-  function insert($table,$data){
-    $this->setTable($table);
-    $dataArray = $this->_loadTable();
+	public function select_all($table){
+		$this->_load_table($table);
+		return $this->db_cache[$table];
+	}
 
+	private function write_to_disk($table){
+		if(!isset($this->db_cache[$table])){
+			return file_put_contents($this->get_table_path($table),'');
+		}
+		return file_put_contents($this->get_table_path($table),json_encode($this->db_cache[$table]));
+	}
+	/**
+	 * Delete content by id
+	 * 
+	 * @param string $table Table name
+	 * @param string $id Row key
+	 * @return boolean
+	 */
+	public function delete($table, $id = null){
+		$this->_load_table($table);
 
-    if (true === is_array($dataArray)) {
-      
-      end($dataArray);
-      $key = key($dataArray);
-      $key = $key + 1;
+		if(!$id){
+			return $this->delete_all($table);
+		}else{
+			if(isset($this->db_cache[$table][$id])){
+				unset($this->db_cache[$table][$id]);
+				return $this->write_to_disk($table);
+			}
+		}
+		return false;
+	}
 
-      $dataArray[$key] = $data;
+	/**
+	 * Delete all contents of table
+	 * 
+	 * @param string $table Nable name
+	 * @return object
+	 */
+	public function delete_all($table) {
+		$this->set_table($table);
+		unset($this->db_cache[$table]);
+		return $this->write_to_disk($table);
+	}
 
-    } else {
-      $key = 1;
-      $dataArray = array(1 => $data);
-    }
+	/**
+	 * Update content by id
+	 * 
+	 * @return object
+	 */
+	public function update($table, array $data, $id){
+		$this->_load_table($table);
 
-    $saveData = json_encode($dataArray);
-    $save = file_put_contents($this->getTableDir(), $saveData);
-    return $save ? true : false ;
+		if(isset($this->db_cache[$table][$id])){
+			$this->db_cache[$table][$id] = array_merge(
+				$this->db_cache[$table][$id],
+				$data
+			);
+			if($this->write_to_disk($table)){
+				return $this->db_cache[$table];
+			}else{
+				return false;
+			}
+		}
+		return false;
+	}
 
-  }
-
-  /**
-  * Retrieve data by its key
-  * 
-  * @param string $key
-  * @param boolean [optional] $timestamp
-  * @return string
-  */
-
-  public function select($table,$id=NULL){
-    $this->setTable($table);
-    $dataArray = $this->_loadTable(true);
-    if (!$id) {
-      return $dataArray;
-    }else{
-      //where situation
-      if(is_array($id)){
-        $where = array();
-        foreach ($id as $key => $value) {
-          $where['0'] = $key;
-          $where['1'] = $value;
-        }
-        $output = $this->search($dataArray,$where['0'],$where['1']);
-        if (count($output) > 0) {
-          return json_decode(json_encode($output));
-        }else{
-          echo("Error: select() - No Result Found.");
-        }    
-
-      }elseif(is_int($id)){
-        //if (!isset($dataArray->$id)) return null; 
-        return $dataArray->$id;
-      }
-     
-    }
-  }
-
-  public function selectAll($table){
-    $this->setTable($table);
-    return $this->_loadTable();
-  }
-
-
-  /**
-  * Delete content by id
-  * 
-  * @return boolean
-  */
-  public function delete($table,$id=NULL){
-    $this->setTable($table);
-
-    if ($id<1 or $id === NULL) {
-      $this->deleteAll($table);
-    }else{
-      $dataArray = $this->_loadTable();
-      if (true === isset($dataArray[$id])) {
-        unset($dataArray[$id]);
-        $dataArray = json_encode($dataArray);
-        file_put_contents($this->getTableDir(), $dataArray);
-        return true;
-      } else {
-        echo("Error: delete() - Key '{$id}' not found.");
-      }
-    }
-  }
-
-  /**
-  * Delete all contents of table
-  * 
-  * @return object
-  */
-  public function deleteAll($table) {
-    $this->setTable($table);
-    $fileDir = $this->getTableDir();
-    if (true === file_exists($fileDir)) {
-      $File = fopen($fileDir, 'w');
-      fclose($File);
-    }
-    return $this;
-  }
-
-  /**
-  * Update content by id
-  * 
-  * @return object
-  */
-  public function update($table,$data=array(),$id){
-    $this->setTable($table);
-    $dataArray = $this->_loadTable();
-
-    if ($dataArray[$id]) {
-      $dataArray[$id] = $data;
-      $dataArray = json_encode($dataArray);
-      file_put_contents($this->getTableDir(), $dataArray);
-    }else{
-      echo("Error: update() - Key '{$id}' not found.");
-    }
-
-  }
-
-  /**
-  * Get the file directory path
-  * 
-  * @return string
-  */
-  private function getTableDir() {
-    if (true === $this->_checkTableDir()) {
-      $filename = $this->getTable();
-      $filename = preg_replace('/[^0-9a-z\.\_\-]/i', '', strtolower($filename));
-      return $this->getTablePath() . $this->_getHash($filename) . $this->getExtension();
-    }
-  }
-
-  /**
-  * Check if a writable file directory exists and if not create a new one
-  * 
-  * @return boolean
-  */
-  private function _checkTableDir() {
-    if (!is_dir($this->getTablePath()) && !mkdir($this->getTablePath(), 0775, true)) {
-      throw new Exception('Unable to create file directory ' . $this->getTablePath());
-    } elseif (!is_readable($this->getTablePath()) || !is_writable($this->getTablePath())) {
-      if (!chmod($this->getTablePath(), 0775)) {
-        throw new Exception($this->getTablePath() . ' must be readable and writeable');
-      }
-    }
-    return true;
-  }
-
-
-  /**
-  * Get the filename hash
-  * 
-  * @return string
-  */
-  private function _getHash($filename) {
-    $this->_encrypt == true ? $file = sha1($filename) : $file = $filename;
-    return $file;
-    
-  }
+	/**
+	 * Get the file directory path
+	 * 
+	 * @return string
+	 */
+	private function get_table_path($table) {
+		if ($this->_check_table_dir()) {
+			$filename = strtolower($table);
+			return $this->get_db_dir() . $this->_get_hash($table) . '.' . $this->getExtension();
+		}
+	}
+	private function get_db_dir(){
+		return $this->_db_dir . '/';
+	}
+	/**
+	 * Check if a writable file directory exists and if not create a new one
+	 * 
+	 * @return boolean
+	 */
+	private function _check_table_dir() {
+		if (!is_dir($this->get_db_dir()) && !mkdir($this->get_db_dir(), 0775, true)) {
+			throw new Exception('Unable to create file directory ' . $this->get_db_dir());
+		} elseif (!is_readable($this->get_db_dir()) || !is_writable($this->get_db_dir())) {
+			if (!chmod($this->get_db_dir(), 0775)) {
+				throw new Exception($this->get_db_dir() . ' must be readable and writeable');
+			}
+		}
+		return true;
+	}
 
 
+	/**
+	 * Get the filename hash
+	 * 
+	 * @return string
+	 */
+	private function _get_hash($filename) {
+		if($this->_encrypt)
+			return md5($filename);
+		return $filename;
+	}
 
-  /**
-  * Table path getter
-  * 
-  * @param string $name
-  * @return object
-  */
-
-  private function getTablePath() {
-    return $this->_dbpath;
-  }
-
-  /**
-   * Table name Setter
-   * 
-   * @param string $name
-   * @return object
-   */
-
-  private function setTable($name) {
-    $this->_tablename = $name;
-    return $this;
-  }
+	/**
+	 * Table name Setter
+	 * 
+	 * @param string $name
+	 * @return object
+	 */
+	private function set_table($name){
+		if(!isset($this->db_cache[$name])){
+			$this->db_cache[$name] = [];
+		}
+		$this->current_tablename = $name;
+	}
 
 
 
-  /**
-   * Cache name Getter
-   * 
-   * @return void
-   */
-  private function getTable() {
-    return $this->_tablename;
-  }
+	/**
+	 * Cache name Getter
+	 * 
+	 * @return void
+	 */
+	private function get_table($table) {
+		return $this->_tablename;
+	}
 
 
-  /**
-  * Load appointed table
-  * 
-  * @return mixed
-  */
-  private function _loadTable($object=false) {
-    if (true === file_exists($this->getTableDir())) {
-      $file = file_get_contents($this->getTableDir());
-      if ($object==TRUE) {
-        return json_decode($file);
-      }else{
-        return json_decode($file,TRUE);
-      }
-      
-    } else {
-      return false;
-    }
-  }
+	/**
+	 * Load appointed table
+	 * @param string $tablename Table name
+	 * 
+	 * @return array
+	 */
+	private function _load_table($table) {
+		if(!isset($this->db_cache[$table])){
+			if(!is_file($this->get_table_path($table))){
+				$this->db_cache[$table] = [];
+			}else{
+				$this->db_cache[$table] = json_decode(file_get_contents($this->get_table_path($table)),true);
+			}
+		}
+		$this->current_tablename = $table;
+		return $this->db_cache[$table];
+	}
 
 
-  /**
-  * Table file extension Setter
-  * 
-  * @param string $ext
-  * @return object
-  */
-  private function setExtension($ext) {
-    $this->_extension = $ext;
-    return $this;
-  }
+	/**
+	 * Table file extension Setter
+	 * 
+	 * @param string $ext
+	 * @return object
+	 */
+	private function set_extension($ext) {
+		$this->_extension = $ext;
+		return $this;
+	}
 
-  /**
-  * Table file encryption Setter
-  * 
-  * @param string $ext
-  * @return object
-  */
-  private function setEncryption($ext){
-    $this->_encrypt = $ext;
-    return $this;
-  }
+	/**
+	 * Table file encryption Setter
+	 * 
+	 * @param string $ext
+	 * @return object
+	 */
+	private function set_encryption($ext){
+		$this->_encrypt = $ext;
+		return $this;
+	}
 
-  /**
-  * Table file extension Getter
-  * 
-  * @return string
-  */
-  private function getExtension() {
-    return $this->_extension;
-  }
-
-
-  private function search($array, $key, $value){
-    $array = json_decode(json_encode($array),TRUE);
-
-    $results = array();
-
-    if (is_array($array)) {
-        if (isset($array[$key]) && $array[$key] == $value) {
-            $results[] = $array;
-        }
-
-        foreach ($array as $subarray) {
-            $results = array_merge($results, $this->search($subarray, $key, $value));
-        }
-    }
-
-    return $results;
-
-  }
-
+	/**
+	 * Table file extension Getter
+	 * 
+	 * @return string
+	 */
+	private function getExtension() {
+		return $this->_extension;
+	}
 }
