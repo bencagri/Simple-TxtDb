@@ -5,8 +5,8 @@
  * Required: PHP5.5+
  * 
  * @author Cagri S. Kirbiyik, Km.Van
- * @since 31.12.2015
- * @version 2.0.2
+ * @since 07.01.2016
+ * @version 2.0.3
  * @license BSD http://www.opensource.org/licenses/bsd-license.php
  */
 
@@ -214,13 +214,20 @@ class txtdb {
 	 * @return boolean
 	 */
 	private function _check_table_dir() {
+		static $cache = null;
+		if($cache !== null){
+			return $cache;
+		}
 		if (!is_dir($this->get_db_dir()) && !mkdir($this->get_db_dir(), 0775, true)) {
+			$cache = false;
 			throw new Exception('Unable to create file directory ' . $this->get_db_dir());
 		} elseif (!is_readable($this->get_db_dir()) || !is_writable($this->get_db_dir())) {
 			if (!chmod($this->get_db_dir(), 0775)) {
+				$cache = false;
 				throw new Exception($this->get_db_dir() . ' must be readable and writeable');
 			}
 		}
+		$cache = true;
 		return true;
 	}
 
