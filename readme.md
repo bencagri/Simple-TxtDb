@@ -9,6 +9,7 @@ File contents  = Table rows
 
 #Update
 ===============
+* v2.0.3 - optimize io operation
 * v2.0.2 - add multi condition select (search)
 * v2.0.1 - optimize update method
 * v2.0 - rewrite all codes and optimize the IO operation. And uses more stringent API.
