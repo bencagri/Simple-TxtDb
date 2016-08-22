@@ -6,3 +6,5 @@ php:
   - '7.0'
   - hhvm
   - nightly
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
