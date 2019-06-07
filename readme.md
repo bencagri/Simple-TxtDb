@@ -33,7 +33,7 @@ thats it. Or;
 
 Encryption is used to encrypt file names.
 
-###Inserting Data
+### Inserting Data
 This method gets two parameters. 
 First is "table name", second is our data in array.
 
@@ -43,7 +43,7 @@ First is "table name", second is our data in array.
 	]);
 
 
-###Update
+### Update
 This method gets three parameters.
 First is "table name", second is our data in array and third is "where situation"
 
@@ -52,14 +52,14 @@ First is "table name", second is our data in array and third is "where situation
 		"email" => "john@google.com"
 	],1);
 
-###Delete
+### Delete
 
     $db->delete("students",1);
     
 Important : If you dont set second param, this method deletes all contents in file!
 
   
-###Select
+### Select
 This method returns array object.
 
      $students =  $db->select('students');
@@ -69,7 +69,7 @@ This method returns array object.
      }
      
     
-###Select One Row
+### Select One Row
 This method lists one row by id
 
     $user = $db->select('students',1);
@@ -79,7 +79,7 @@ This method lists one row by id
     John Doe
 
 
-###Select with where situation
+### Select with where situation
 With this method you can select data with where situation, second param should be array
 
     $teachers =$db->select('teachers',array('name' =>'Test-1'));
